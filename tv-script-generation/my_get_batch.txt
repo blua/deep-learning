@@ -1,0 +1,88 @@
+
+
+"""
+    # Discard incomplete sequences at the end
+    full_seq = (len(int_text)//seq_length)
+    n_batches = (seq_length * full_seq)//batch_size
+    
+    # Discard incomplete batches at the end
+    text = int_text[:n_batches*batch_size]
+    
+    # PART BELOW WAS COPIED FROM EMBEDDINGS PROJECT; DOESN'T RETURN THE ARRAYS WE NEED
+    
+    seq_x, seq_y, batch_x, batch_y, batches = [], [], [], [], []
+    
+    for i in range(0, len(text)):
+        seq_x.extend([text[i:i+seq_length]])
+        seq_y.extend([text[i:i+seq_length]])
+        for ii in range (0, len(seq_x)):
+            batch_x.extend(seq_x[ii:ii+batch_size])
+            batch_y.extend(seq_y[ii:ii+batch_size])
+            for iii in batch_x, batch_y in range(0, len(batch_x)):
+                batch = [batch_x, batch_y]
+                batches.extend(batch)
+                
+    yield batches
+    
+    return np.ndarray(batches)
+"""
+
+
+
+n_batches = len(int_text)//(batch_size*seq_length)
+
+# only full batches
+int_text = int_text[:n_batches*batch_size*seq_length+1]
+
+# Initialize result & calculate skip distance
+result=np.ndarray(shape=(n_batches,2,batch_size,seq_length), dtype=int)
+skipdistance = n_batches*seq_length    
+
+# First loop steps at batch_size * seq_length
+for b in range(n_batches):
+    batch_idx = b*seq_length
+    x , y= [], []
+    for bb in range(batch_size):
+        idx = batch_idx + (bb*skipdistance) # get starting index for batch
+        x_idx = idx
+        y_idx = idx+1          
+        result[b][0][bb] = int_text[x_idx:x_idx+seq_length]
+        result[b][1][bb] = int_text[y_idx:y_idx+seq_length]                   
+return result
+
+
+
+
+
+
+
+    full_seq = (len(int_text)//seq_length)
+    n_batches = full_seq//batch_size
+    
+    # Discard incomplete batches at the end
+    int_text = int_text[:n_batches*batch_size*seq_length]
+    
+    # PART BELOW WAS COPIED FROM EMBEDDINGS PROJECT; DOESN'T RETURN THE ARRAYS WE NEED
+    
+    seq_x, seq_y, batch_x, batch_y = [], [], [], []
+    
+    batches=np.ndarray(shape=(n_batches,2,batch_size,seq_length), dtype=int)
+    
+    for i in range(0, len(text)):
+        seq_x.extend([int_text[i:i+seq_length]])
+        seq_y.extend([int_text[i:i+seq_length]])
+        for ii in range (0, len(seq_x)):
+            batch_x.extend(seq_x[ii:ii+batch_size])
+            batch_y.extend(seq_y[ii:ii+batch_size])
+            for iii in batch_x, batch_y in range(0, len(batch_x)):
+                batch = np.array([batch_x, batch_y])
+                batches.extend(batch)
+                
+    yield batches
+    
+    return batches
+
+"""
+DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
+"""
+tests.test_get_batches(get_batches)
